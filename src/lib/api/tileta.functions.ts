@@ -130,7 +130,11 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: {
+      status: "purchased" | "delivering" | "delivered";
+      receipt_url?: string;
+      delivered_at?: string;
+    } = { status: data.status };
     if (data.receipt_url) patch.receipt_url = data.receipt_url;
     if (data.status === "delivered") patch.delivered_at = new Date().toISOString();
     const { error } = await supabaseAdmin.from("orders").update(patch).eq("id", data.orderId).eq("agent_id", userId);
